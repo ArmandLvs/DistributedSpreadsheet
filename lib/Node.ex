@@ -14,10 +14,6 @@ defmodule DistributedSpreadsheet.Node do
   @spec start_link :: :ignore | {:error, any} | {:ok, pid}
   def start_link(), do: GenServer.start_link(__MODULE__, {}, name: __MODULE__)
 
-  @spec start_link(keyword()) :: {:ok, pid} | {:error, any}
-  def start_link(opts \\ []) do
-    GenServer.start_link(__MODULE__, %{}, opts)
-  end
 
   @spec propose_cell_value(cell :: any(), value :: any()) :: :ok
   def propose_cell_value(cell, value) do
@@ -43,8 +39,7 @@ defmodule DistributedSpreadsheet.Node do
 
   @impl true
   def init(_) do
-    :ok = :syn.join(:distributed_spreadsheet, :node, self())
-    Logger.debug("Node started and joined :distributed_spreadsheet scope.")
+    Logger.info("#{node()} started and joined cluster.")
     {:ok, %State{cells: %{}}}
   end
 
@@ -70,7 +65,7 @@ defmodule DistributedSpreadsheet.Node do
   ### Private Functions
 
   defp broadcast_cell_update(cell, value) do
-    members = for {pid, _} <- :syn.members(:distributed_spreadsheet, :node), pid != self(), do: pid
-    Enum.each(members, fn pid -> GenServer.cast(pid, {:update_cell, cell, value}) end)
+    members = Node.list()
+    Enum.each(members, fn node -> GenServer.cast({__MODULE__, node}, {:update_cell, cell, value}) end)
   end
 end
