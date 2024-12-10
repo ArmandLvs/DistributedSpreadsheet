@@ -32,7 +32,7 @@ defmodule DistributedSpreadsheet.NodeTest do
     value = "20"
     Node.propose_cell_value(n1,cell, value)
 
-    Process.sleep(1000)
+    Process.sleep(9000)
 
     assert Node.get_cell_value(n3,cell) == value
     LocalCluster.stop(cluster)
@@ -46,8 +46,27 @@ defmodule DistributedSpreadsheet.NodeTest do
     value = "30"
     LocalCluster.nodes(cluster)
     Node.propose_cell_value(n1,cell, value)
-    Process.sleep(1000)
+    Process.sleep(9000)
 
+    assert Node.get_cell_value(n2,cell) == value
+    assert Node.get_cell_value(n3,cell) == value
+
+    cell = %{column: 10, line: 9}
+    value = "20"
+    LocalCluster.nodes(cluster)
+    Node.propose_cell_value(n1,cell, value)
+    Process.sleep(9000)
+
+    assert Node.get_cell_value(n2,cell) == value
+    assert Node.get_cell_value(n3,cell) == value
+
+    cell = %{column: 10, line: 9}
+    value = "10"
+    LocalCluster.nodes(cluster)
+    Node.propose_cell_value(n2,cell, value)
+    Process.sleep(9000)
+
+    assert Node.get_cell_value(n1,cell) == value
     assert Node.get_cell_value(n2,cell) == value
     assert Node.get_cell_value(n3,cell) == value
     LocalCluster.stop(cluster)
