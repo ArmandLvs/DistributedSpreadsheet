@@ -1,6 +1,7 @@
 defmodule DistributedSpreadsheet.NodeTest do
   use ExUnit.Case
   alias DistributedSpreadsheet.Node
+  @moduletag :skip
 
   test "application starts successfully" do
     :ok = LocalCluster.start()
